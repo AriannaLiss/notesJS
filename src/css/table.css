@@ -1,0 +1,15 @@
+.editable{
+    background-color:rgba(0, 128, 0, 0.287)!important;
+}
+
+.action-link{
+    height: 3rem;
+    width: 3rem;
+    padding: .5rem;
+    transition: all 1s ease;
+}
+
+.action-link:hover{
+    transform: scale(1.2);
+    cursor: pointer;
+}
