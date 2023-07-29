@@ -5,3 +5,20 @@
 .hide{
     display: none !important;
 }
+
+.create_note_btn_container{
+    display: flex;
+    justify-content: end;
+}
+
+#error{
+    position: absolute;
+    top:0;
+    left:0;
+    right: 0;
+    background-color: rgba(110, 7, 7, 0.781);
+    font-weight: bold;
+    color:white;
+    text-align: center;
+    padding: 1rem;
+}

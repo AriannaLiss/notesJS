@@ -1,20 +1,35 @@
-import { genID, getNote, parseContent } from "../utils/functions.js";
-import { fillTable } from "./table.js";
+import { CATEGORIES } from "../utils/const.js";
+import { getNote, saveNote } from "../utils/functions.js";
 
-export const showModal = (notes, id) => { 
+const showCategories = (category) => {
+  return  `<option value=''>Choose category</option>` + 
+    Object.values(CATEGORIES).map(value => 
+      category == value ? 
+        `<option value="${value}" selected>${value}</option>`
+        :`<option value="${value}">${value}</option>`
+  )
+}
+
+export const showModal = (id) => { 
   const modal = document.querySelector('#modal')
   modal.classList.remove('hide')
   const container = modal.querySelector('div');
 
-  const note = getNote(notes, id);
+  const note = id ? getNote(id) : {name: '', content: ''};
+  
   container.innerHTML = `
     <div class="input-group mb-3">
       <span class="input-group-text" id="basic-addon1">Name</span>
       <input id='note-name' type="text" class="form-control" placeholder="Title" value="${note.name}">
     </div>
+
+    <select id='note-category' class="form-select mb-3" aria-label="Category">
+      ${showCategories(note.category)}
+    </select>
+    
     <div class="input-group mb-3">
       <span class="input-group-text" id="basic-addon1">Content</span>
-      <textarea id='note-content' class="form-control">${note.content}</textarea>
+      <textarea id='note-content' class="form-control" placeholder="Text">${note.content}</textarea>
     </div>
     `
   const btn_container = document.createElement('div');
@@ -22,7 +37,7 @@ export const showModal = (notes, id) => {
 
   const save = document.createElement('button');
   save.className='btn btn-primary'
-  save.addEventListener('click', () => saveNote(notes, id))
+  save.addEventListener('click', () => saveNote(id))
   save.innerText = 'Save'
 
   const close = document.createElement('button');
@@ -36,21 +51,6 @@ export const showModal = (notes, id) => {
   container.appendChild(btn_container)
 }
 
-const closeModal = () => {
+export const closeModal = () => {
   document.querySelector('#modal').classList.add('hide')
-}
-
-const saveNote = (notes, id) => {
-  let note = getNote(notes, id);
-  if (!note) {
-      note = {
-          id: genID(notes),
-          created : Date.now()
-      };
-  }
-  note.name = document.querySelector('#note-name').value;
-  note.content = document.querySelector('#note-content').value;
-  note.dates = [...parseContent(note.content)];
-  closeModal();
-  fillTable(notes);
 }

@@ -1,4 +1,6 @@
+import { showModal } from "./components/modal.js"
 import { fillTable } from "./components/table.js"
-import { NOTES } from "./data/notes.js"
 
-fillTable(NOTES, true)
+fillTable(true)
+
+document.querySelector('#create_note').addEventListener('click', () => showModal())
