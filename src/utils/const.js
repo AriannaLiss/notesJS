@@ -3,4 +3,3 @@ export const CATEGORIES = {
     RandomThought: 'Random Thought',
     Idea: 'Idea'
 }
-

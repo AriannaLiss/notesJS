@@ -1,5 +1,40 @@
+import { getNote, INIT_NOTE, saveNote } from "../data/notes.js";
 import { CATEGORIES } from "../utils/const.js";
-import { getNote, saveNote } from "../utils/functions.js";
+import { showErrorMsg } from "../utils/functions.js";
+import { fillTable } from "./table.js";
+
+export const showModal = (id) => { 
+  const modal = getModal()
+  modal.classList.remove('hide')
+  const container = modal.querySelector('div');
+
+  const note = id ? getNote(id) : {...INIT_NOTE};
+  
+  container.innerHTML = noteToFormHTML(note)
+
+  container.appendChild(makeBtns(id))
+}
+
+export const closeModal = () => {
+  getModal().classList.add('hide')
+}
+
+const save = (id) => {
+  try {
+    const note = {...INIT_NOTE};
+
+    note.id = id;
+    note.name = document.querySelector('#note-name').value.trim();
+    note.content = document.querySelector('#note-content').value.trim();
+    note.category = document.querySelector('#note-category').value;
+
+    saveNote(note)
+    closeModal();
+    fillTable();
+  } catch(e) {
+      showErrorMsg(e);
+  }
+}
 
 const showCategories = (category) => {
   return  `<option value=''>Choose category</option>` + 
@@ -10,15 +45,8 @@ const showCategories = (category) => {
   )
 }
 
-export const showModal = (id) => { 
-  const modal = document.querySelector('#modal')
-  modal.classList.remove('hide')
-  const container = modal.querySelector('div');
-
-  const note = id ? getNote(id) : {name: '', content: ''};
-  
-  container.innerHTML = `
-    <div class="input-group mb-3">
+const noteToFormHTML = (note) => {
+  return `<div class="input-group mb-3">
       <span class="input-group-text" id="basic-addon1">Name</span>
       <input id='note-name' type="text" class="form-control" placeholder="Title" value="${note.name}">
     </div>
@@ -30,27 +58,29 @@ export const showModal = (id) => {
     <div class="input-group mb-3">
       <span class="input-group-text" id="basic-addon1">Content</span>
       <textarea id='note-content' class="form-control" placeholder="Text">${note.content}</textarea>
-    </div>
-    `
+    </div>`
+}
+
+const makeBtns = (id) => {
   const btn_container = document.createElement('div');
   btn_container.className = 'btn-container'
 
-  const save = document.createElement('button');
-  save.className='btn btn-primary'
-  save.addEventListener('click', () => saveNote(id))
-  save.innerText = 'Save'
+  const btnSave = document.createElement('button');
+  btnSave.className='btn btn-primary'
+  btnSave.addEventListener('click', () => save(id))
+  btnSave.innerText = 'Save'
 
-  const close = document.createElement('button');
-  close.className='btn btn-secondary'
-  close.addEventListener('click', () => closeModal())
-  close.innerText = 'Close'
+  const btnClose = document.createElement('button');
+  btnClose.className='btn btn-secondary'
+  btnClose.addEventListener('click', () => closeModal())
+  btnClose.innerText = 'Close'
 
-  btn_container.appendChild(close)
-  btn_container.appendChild(save)
+  btn_container.appendChild(btnClose)
+  btn_container.appendChild(btnSave)
 
-  container.appendChild(btn_container)
+  return btn_container
 }
 
-export const closeModal = () => {
-  document.querySelector('#modal').classList.add('hide')
+const getModal = () => {
+  return document.querySelector('#modal')
 }
