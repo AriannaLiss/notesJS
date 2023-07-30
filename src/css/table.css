@@ -1,0 +1,3 @@
+#table-summary [data-col-name="archived"], #table-summary [data-col-name="active"]{
+    cursor: pointer;
+}
