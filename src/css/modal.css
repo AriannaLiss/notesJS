@@ -17,9 +17,5 @@
     border: 1px solid grey;
     border-radius: 1rem;
     padding:1rem;
-}
-
-.btn-container{
-    display: flex;
-    justify-content: space-between;
+    min-width: 50%;
 }

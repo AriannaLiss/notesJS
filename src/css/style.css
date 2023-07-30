@@ -6,13 +6,8 @@
     display: none !important;
 }
 
-.create_note_btn_container{
-    display: flex;
-    justify-content: end;
-}
-
 #error{
-    position: absolute;
+    position: fixed;
     top:0;
     left:0;
     right: 0;
@@ -22,3 +17,14 @@
     text-align: center;
     padding: 1rem;
 }
+
+.btn-container{
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-right-container{
+    display: flex;
+    justify-content: end;
+}
+
