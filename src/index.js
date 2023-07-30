@@ -1,12 +1,13 @@
-import { fillArchivedTable, initArchiveTableHeader, isArchiveTableShowed } from "./components/archivedTable.js"
-import { showModal } from "./components/modal.js"
-import { initSummaryHeader, updateSummary } from "./components/summary.js"
-import { fillTable, initTableHeader } from "./components/table.js"
+import { fillArchivedTable, initArchiveTableHeader, isArchiveTableShown, showArchivedTable } from "./components/archivedTable.js"
+import { initSummaryHeader, updateSummary } from "./components/summaryTable.js"
+import { initModal } from "./components/common/modal.js"
+import { makeModalForm } from "./components/editNoteModal.js"
+import { fillActiveTable, initActiveTableHeader } from "./components/activeTable.js"
 
 export const updateTables = () => {
-    fillTable()
+    fillActiveTable()
     updateSummary()
-    isArchiveTableShowed() && fillArchivedTable()
+    isArchiveTableShown() && fillArchivedTable()
 }
 
 export const showErrorMsg = (msg) => {
@@ -22,10 +23,12 @@ export const goToAnchor = (anchor) => {
     return false
 }
 
-initTableHeader()
-initSummaryHeader()
+initActiveTableHeader()
 initArchiveTableHeader()
+initSummaryHeader()
+initModal()
 
 updateTables()
 
-document.querySelector('#create_note').addEventListener('click', () => showModal())
+document.querySelector('#create_note').addEventListener('click', () => makeModalForm())
+document.querySelector('#show_archived_table_btn').addEventListener('click', showArchivedTable)

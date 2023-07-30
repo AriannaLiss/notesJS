@@ -18,8 +18,8 @@ export const updateSummary = () => {
 }
 
 export const initSummaryHeader = () => {
-    const showArchivedBtn = document.querySelector('#table-summary [data-col-name="archived"]')
-    const showActiveBtn = document.querySelector('#table-summary [data-col-name="active"]')
-    showArchivedBtn.addEventListener('click', showArchivedTable)
-    showActiveBtn.addEventListener('click', () => goToAnchor('table-notes'))
+    const showArchivedTitle = document.querySelector('#table-summary [data-col-name="archived"]')
+    const showActiveTitle = document.querySelector('#table-summary [data-col-name="active"]')
+    showArchivedTitle.addEventListener('click', showArchivedTable)
+    showActiveTitle.addEventListener('click', () => goToAnchor('table-notes'))
 }

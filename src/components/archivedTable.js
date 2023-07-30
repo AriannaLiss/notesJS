@@ -1,40 +1,29 @@
-import { deleteAllNotes, deleteNote, NOTES_ARCHIVED, unpackAllNotes, unpackNote } from "../data/notes.js";
-import { goToAnchor, showErrorMsg, updateTables } from "../index.js";
-import { findID } from "../utils/functions.js";
-import { updateSummary } from "./summary.js";
-import { makeRow } from "./table.js";
+import { NOTES_ARCHIVED, unpackAllNotes, unpackNote } from "../data/notes.js";
+import { goToAnchor, updateTables } from "../index.js";
+import { createActionBtn, deleteAllRows, deleteRow, fillTable, initTableHeader } from "./common/table.js";
 
-export const isArchiveTableShowed = () => {
-    return !document.querySelector('#table-archived-notes').classList.contains('hide')
-}
+export const isArchiveTableShown = () => !getTable().classList.contains('hide')
 
 export const showArchivedTable = () => {
-    const table = document.querySelector('#table-archived-notes')
-    if (!isArchiveTableShowed()) {
-        table.classList.remove('hide')
+    const showArchivedBtn = document.querySelector('#show_archived_table_btn')
+    if (!isArchiveTableShown()) {
+        getTable().classList.remove('hide')
         goToAnchor('table-archived-notes')
         fillArchivedTable()
+        showArchivedBtn.innerText = 'Hide archived notes'
     } else {
-        table.classList.add('hide') 
+        getTable().classList.add('hide') 
+        showArchivedBtn.innerText = 'Show archived notes'
     }
 }
 
-export const fillArchivedTable = () => {
-    const tbody = document.querySelector('#table-archived-notes>tbody')
-    tbody.innerHTML = ''
-    
-    NOTES_ARCHIVED.length ?
-        NOTES_ARCHIVED.map(note => tbody.appendChild(makeRow(note, makeActionBtns, false)))
-        : tbody.innerHTML='No any archived notes yet...'
-}
+export const fillArchivedTable = () => fillTable(NOTES_ARCHIVED, getTable(), makeActionBtns, false)
 
-export const initArchiveTableHeader = () => {
-    const headActions = document.querySelector('#table-archived-notes [data-col-name="actions"]')
-    headActions.innerHTML=''
-    headActions.appendChild(makeHeadActionBtns())   
-}
+export const initArchiveTableHeader = () => initTableHeader(getTable(), makeHeadActionBtns)   
 
-const makeActionBtns = () => {
+const getTable = () => document.querySelector('#table-archived-notes')
+
+const makeActionBtns = (id) => {
     const unpackSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-up" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5zm-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"/>
         </svg>`
@@ -46,14 +35,13 @@ const makeActionBtns = () => {
     const td = document.createElement('td')
     const container = document.createElement('div')
     container.className='btn-right-container'
-    container.appendChild(createActionBtn('unpack', unpackSVG, unpackRow))
-    container.appendChild(createActionBtn('delete', deleteSVG, deleteRow))
+    container.appendChild(createActionBtn('unpack', unpackSVG, (e) => unpackRow(e, id)))
+    container.appendChild(createActionBtn('delete', deleteSVG, (e) => deleteRow(e, id, NOTES_ARCHIVED)))
     td.appendChild(container)
     return td
 }
 
 const makeHeadActionBtns = () => {
-
     const unpackALLSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M3.5 6a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 1 0-1h2A1.5 1.5 0 0 1 14 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-8A1.5 1.5 0 0 1 3.5 5h2a.5.5 0 0 1 0 1h-2z"/>
             <path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 1.707V10.5a.5.5 0 0 1-1 0V1.707L5.354 3.854a.5.5 0 1 1-.708-.708l3-3z"/>
@@ -66,45 +54,17 @@ const makeHeadActionBtns = () => {
     const container = document.createElement('div')
     container.className='btn-right-container'
     container.appendChild(createActionBtn('archive', unpackALLSVG, unpackAllRows))
-    container.appendChild(createActionBtn('delete', deleteAllSVG, deleteAllRows))
+    container.appendChild(createActionBtn('delete', deleteAllSVG, () => deleteAllRows(NOTES_ARCHIVED) ))
     return container
 }
 
-const createActionBtn = (action, svg, onClick) => {
-    const btn = document.createElement('button')
-    btn.type = 'button'
-    btn.className = 'btn btn-outline-secondary m-1'
-    btn.dataset.btn = action
-    btn.innerHTML = svg
-    btn.addEventListener('click',onClick)
-    return btn
-}
-
-const unpackRow = (e) => {
+const unpackRow = (e,id) => {
     e.stopPropagation()
-    unpackNote(findID(e.target.parentNode))
+    unpackNote(id)
     updateTables()
-}
-
-const deleteRow = (e) => {
-    e.stopPropagation()
-    try{
-        const id = findID(e.target.parentNode)
-        deleteNote(id, NOTES_ARCHIVED)
-        updateSummary()
-        fillArchivedTable()
-    } catch(e) {
-        showErrorMsg(e);
-    }
 }
 
 const unpackAllRows = () => {
     unpackAllNotes()
     updateTables()
-}
-
-const deleteAllRows = () => {
-    deleteAllNotes(NOTES_ARCHIVED)
-    updateSummary()
-    fillArchivedTable()
 }

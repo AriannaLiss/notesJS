@@ -1,41 +1,14 @@
-import { archiveAllNotes, archiveNote, deleteAllNotes, deleteNote, NOTES } from "../data/notes.js";
-import { showErrorMsg, updateTables } from "../index.js";
-import { dateAsText, findID, shortText } from "../utils/functions.js";
-import { showModal } from "./modal.js";
+import { archiveAllNotes, archiveNote, NOTES } from "../data/notes.js";
+import { updateTables } from "../index.js";
+import { createActionBtn, deleteAllRows, deleteRow, fillTable, initTableHeader } from "./common/table.js";
 
-export const fillTable = () => {
-    const tbody = document.querySelector('#table-notes>tbody')
-    tbody.innerHTML = ''
+export const fillActiveTable = () => fillTable(NOTES, getTable(), makeActionBtns)
 
-    NOTES.length ?
-        NOTES.map(note => tbody.appendChild(makeRow(note)))
-        : tbody.innerHTML='No any active notes yet...'
-}
+export const initActiveTableHeader = () => initTableHeader(getTable(), makeHeadActionBtns)   
 
-export const initTableHeader = () => {
-    const headActions = document.querySelector('#table-notes [data-col-name="actions"]')
-    headActions.innerHTML=''
-    headActions.appendChild(makeHeadActionBtns())   
-}
+const getTable = () => document.querySelector('#table-notes')
 
-export const makeRow = (note, actionBtns = makeActionBtns, isEditable = true) =>{
-    const row = document.createElement('tr')
-    row.dataset.id=note.id 
-    row.innerHTML = noteToRowHTML(note)
-    row.appendChild(actionBtns())
-    isEditable && row.addEventListener('click',() => showModal(note.id))
-    return row
-}
-
-const noteToRowHTML = (note) => {
-    return Object.keys(note).slice(2).reduce((tds, key) => 
-        tds += key == 'created' ? 
-            `<td data-key=${key}>${dateAsText(note[key])}</td>`
-            : `<td data-key=${key}>${shortText(note[key])}</td>`, 
-        `<th scope="row" data-key='name'>${note.name}</th>`)
-};
-
-const makeActionBtns = () => {
+const makeActionBtns = (id) => {
     const editSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
         </svg>`
@@ -52,8 +25,8 @@ const makeActionBtns = () => {
     const container = document.createElement('div')
     container.className='btn-right-container'
     container.appendChild(createActionBtn('edit', editSVG))
-    container.appendChild(createActionBtn('archive', archiveSVG, archiveRow))
-    container.appendChild(createActionBtn('delete', deleteSVG, deleteRow))
+    container.appendChild(createActionBtn('archive', archiveSVG, (e) => archiveRow(e, id)))
+    container.appendChild(createActionBtn('delete', deleteSVG, (e) => deleteRow(e, id, NOTES)))
     td.appendChild(container)
     return td
 }
@@ -70,43 +43,17 @@ const makeHeadActionBtns = () => {
     const container = document.createElement('div')
     container.className='btn-right-container'
     container.appendChild(createActionBtn('archive', archiveAllSVG, archiveAllRows))
-    container.appendChild(createActionBtn('delete', deleteAllSVG, deleteAllRows))
+    container.appendChild(createActionBtn('delete', deleteAllSVG, () => deleteAllRows(NOTES)))
     return container
 }
 
-const createActionBtn = (action, svg, onClick) => {
-    const btn = document.createElement('button')
-    btn.type = 'button'
-    btn.className = 'btn btn-outline-secondary m-1'
-    btn.dataset.btn = action
-    btn.innerHTML = svg
-    onClick && btn.addEventListener('click',onClick)
-    return btn
-}
-
-const archiveRow = (e) => {
+const archiveRow = (e, id) => {
     e.stopPropagation()
-    archiveNote(findID(e.target.parentNode))
+    archiveNote(id)
     updateTables()
-}
-
-const deleteRow = (e) => {
-    e.stopPropagation()
-    try{
-        const id = findID(e.target.parentNode)
-        deleteNote(id)
-        updateTables()
-    } catch(e) {
-        showErrorMsg(e);
-    }
 }
 
 const archiveAllRows = () => {
     archiveAllNotes()
-    updateTables()
-}
-
-const deleteAllRows = () => {
-    deleteAllNotes()
     updateTables()
 }

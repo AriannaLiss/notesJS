@@ -1,46 +1,33 @@
 import { getNote, INIT_NOTE, saveNote } from "../data/notes.js";
 import { showErrorMsg, updateTables } from "../index.js";
 import { CATEGORIES } from "../utils/const.js";
+import { closeModal, makeBtn, showModal } from "./common/modal.js";
 
-export const showModal = (id) => { 
-  const modal = getModal()
-  modal.classList.remove('hide')
+export const makeModalForm = (id) => {
+  showModal()
   const container = modal.querySelector('div');
-
   const note = id ? getNote(id) : {...INIT_NOTE};
-  
   container.innerHTML = noteToFormHTML(note)
-
   container.appendChild(makeBtns(id))
 }
 
-export const closeModal = () => {
-  getModal().classList.add('hide')
-}
-
 const save = (id) => {
-  const note = {...INIT_NOTE};
-  
-  note.id = id;
-  note.name = document.querySelector('#note-name').value.trim();
-  note.content = document.querySelector('#note-content').value.trim();
-  note.category = document.querySelector('#note-category').value;
-  
   try {
+    const note = {...parseForm(), id:id};
     saveNote(note)
     closeModal();
     updateTables();
-  } catch(e) {
-      showErrorMsg(e);
+  } catch(error) {
+      showErrorMsg(error);
   }
 }
 
-const showCategories = (category) => {
-  return Object.values(CATEGORIES).map(value => 
-      category == value ? 
-        `<option value="${value}" selected>${value}</option>`
-        :`<option value="${value}">${value}</option>`
-  )
+const parseForm = () => {
+  const note = {...INIT_NOTE}
+  note.name = document.querySelector('#note-name').value.trim();
+  note.content = document.querySelector('#note-content').value.trim();
+  note.category = document.querySelector('#note-category').value;
+  return note;
 }
 
 const noteToFormHTML = (note) => {
@@ -62,26 +49,18 @@ const noteToFormHTML = (note) => {
     </div>`
 }
 
+const showCategories = (category) => {
+  return Object.values(CATEGORIES).map(value => 
+      category == value ? 
+        `<option value="${value}" selected>${value}</option>`
+        :`<option value="${value}">${value}</option>`
+  )
+}
+
 const makeBtns = (id) => {
   const btn_container = document.createElement('div');
   btn_container.className = 'btn-container'
-
-  const btnSave = document.createElement('button');
-  btnSave.className='btn btn-primary'
-  btnSave.addEventListener('click', () => save(id))
-  btnSave.innerText = 'Save'
-
-  const btnClose = document.createElement('button');
-  btnClose.className='btn btn-secondary'
-  btnClose.addEventListener('click', () => closeModal())
-  btnClose.innerText = 'Close'
-
-  btn_container.appendChild(btnClose)
-  btn_container.appendChild(btnSave)
-
+  btn_container.appendChild(makeBtn('Close', closeModal, false))
+  btn_container.appendChild(makeBtn('Save', () => save(id)))
   return btn_container
-}
-
-const getModal = () => {
-  return document.querySelector('#modal')
 }
